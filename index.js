@@ -2,9 +2,13 @@ import express from "express";
 import { MongoClient } from "mongodb";
 //You have to import dotenv for connecting env.
 import "dotenv/config";
+import cors from "cors";
 
 const app = express();
 const PORT = 5000;
+
+app.use(cors());
+app.use(express.json());
 
 const client = new MongoClient(process.env.MONGODB_URL);
 
@@ -18,7 +22,16 @@ export async function connectToMongoDB() {
   }
 }
 
-connectToMongoDB();
+const mongoClient = await connectToMongoDB();
+const db = mongoClient.db("wanderlust");
+const destinationCollection = db.collection("destination");
+
+app.post("/add-destination", async (req, res) => {
+  const data = req.body;
+  const result = await destinationCollection.insertOne(data);
+  console.log(result);
+  res.send(result);
+});
 
 app.get("/", (req, res) => {
   res.send({ message: "Server is running fine." });
