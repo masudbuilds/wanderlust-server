@@ -1,5 +1,5 @@
 import express from "express";
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 //You have to import dotenv for connecting env.
 import "dotenv/config";
 import cors from "cors";
@@ -36,6 +36,24 @@ app.post("/add-destination", async (req, res) => {
 app.get("/destinations", async (req, res) => {
   const result = await destinationCollection.find().toArray();
   res.send(result);
+});
+
+app.get("/destinations/:id", async (req, res) => {
+  const { id } = req.params;
+  if (!ObjectId.isValid(id)) {
+    res.status(400).send({ message: "Invalid destination ID." });
+    return;
+  }
+
+  const destination = await destinationCollection.findOne({
+    _id: new ObjectId(id),
+  });
+  if (!destination) {
+    res.status(404).send({ message: "Destination not found." });
+    return;
+  }
+
+  res.send(destination);
 });
 
 app.get("/", (req, res) => {
