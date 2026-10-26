@@ -40,6 +40,12 @@ app.post("/bookings", async (req, res) => {
   res.send(result);
 });
 
+app.get("/bookings/:email", async (req, res) => {
+  const { email } = req.params;
+  const result = await bookingCollection.find({ email }).toArray();
+  res.send(result);
+});
+
 app.get("/destinations", async (req, res) => {
   const result = await destinationCollection.find().toArray();
   res.send(result);
