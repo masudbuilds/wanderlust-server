@@ -25,10 +25,17 @@ export async function connectToMongoDB() {
 const mongoClient = await connectToMongoDB();
 const db = mongoClient.db("wanderlust");
 const destinationCollection = db.collection("destination");
+const bookingCollection = db.collection("bookings");
 
 app.post("/add-destination", async (req, res) => {
   const data = req.body;
   const result = await destinationCollection.insertOne(data);
+  console.log(result);
+  res.send(result);
+});
+app.post("/bookings", async (req, res) => {
+  const data = req.body;
+  const result = await bookingCollection.insertOne(data);
   console.log(result);
   res.send(result);
 });
