@@ -88,7 +88,7 @@ app.delete("/destinations/:id", async (req, res) => {
 });
 
 app.delete("/bookings/:id", async (req, res) => {
-  const { id } = req.body;
+  const { id } = req.params;
   const result = await bookingCollection.deleteOne({ _id: id });
   res.send(result);
 });
