@@ -87,6 +87,12 @@ app.delete("/destinations/:id", async (req, res) => {
   res.json(result);
 });
 
+app.delete("/bookings/:id", async (req, res) => {
+  const { id } = req.body;
+  const result = await bookingCollection.deleteOne({ _id: id });
+  res.send(result);
+});
+
 app.get("/", (req, res) => {
   res.send({ message: "Server is running fine." });
 });
