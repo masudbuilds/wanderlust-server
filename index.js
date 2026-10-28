@@ -3,6 +3,7 @@ import { MongoClient, ObjectId } from "mongodb";
 //You have to import dotenv for connecting env.
 import "dotenv/config";
 import cors from "cors";
+import { createRemoteJWKSet, jwtVerify } from "jose";
 
 const app = express();
 const PORT = 5000;
@@ -11,6 +12,29 @@ app.use(cors());
 app.use(express.json());
 
 const client = new MongoClient(process.env.MONGODB_URL);
+
+const verifyToken = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).send({ msg: "Unauthorized!" });
+  }
+
+  const token = authHeader.split(" ")[1];
+  if (!token) {
+    return res.status(401).send({ msg: "Unauthorized!" });
+  }
+
+  const JWKS = createRemoteJWKSet(
+    new URL("http://localhost:3000/api/auth/jwks"),
+  );
+
+  try {
+    const { payload } = await jwtVerify(token, JWKS);
+    next();
+  } catch (error) {
+    return res.status(500).send("Server Error!");
+  }
+};
 
 export async function connectToMongoDB() {
   try {
@@ -27,7 +51,7 @@ const db = mongoClient.db("wanderlust");
 const destinationCollection = db.collection("destination");
 const bookingCollection = db.collection("bookings");
 
-app.post("/add-destination", async (req, res) => {
+app.post("/add-destination", verifyToken, async (req, res) => {
   const data = req.body;
   const result = await destinationCollection.insertOne(data);
   console.log(result);
@@ -51,7 +75,7 @@ app.get("/destinations", async (req, res) => {
   res.send(result);
 });
 
-app.get("/destinations/:id", async (req, res) => {
+app.get("/destinations/:id", verifyToken, async (req, res) => {
   const { id } = req.params;
   if (!ObjectId.isValid(id)) {
     res.status(400).send({ message: "Invalid destination ID." });
