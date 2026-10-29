@@ -126,8 +126,10 @@ app.get("/", (req, res) => {
   res.send({ message: "Server is running fine." });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running at ${PORT}`);
-});
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server is running at ${PORT}`);
+  });
+}
 
 export default app;
