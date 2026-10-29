@@ -93,7 +93,12 @@ app.get("/destinations/:id", verifyToken, async (req, res) => {
   res.send(destination);
 });
 
-app.patch("/destinations/:id", async (req, res) => {
+app.get("/featured-destinations", async (req, res) => {
+  const result = await destinationCollection.find().limit(5).toArray();
+  res.send(result);
+});
+
+app.patch("/destinations/:id", verifyToken, async (req, res) => {
   const { id } = req.params;
   const updatedData = req.body;
   const result = await destinationCollection.updateOne(
